@@ -100,6 +100,19 @@ function Songs() {
             .then(data => setSongs(data));
     }
 
+    function deleteSong(){
+        if(!window.confirm("Are you sure about deleting this song?")) return;
+
+        fetch(`http://localhost:3001/songs/${songDetails.song.ID}/delete`,{method: "DELETE"})
+            .then(()=>{
+                setSongDetails(null);
+                setSelectedSong(null);
+                return fetch("http://localhost:3001/songs");
+            })
+            .then(res=>res.json())
+            .then(data=>setSongs(data));
+    }
+
     return (
         <section id="SONGS">
 
@@ -194,8 +207,10 @@ function Songs() {
                         ))}
                     </ul>
 
-                    <button onClick={cancel}>Back</button>
-                    <button onClick={startEdit}>Edit</button>
+
+                            <button onClick={cancel}>Back</button>
+                            <button onClick={deleteSong}>Delete</button>
+                            <button onClick={startEdit}>Edit</button>
 
                             <hr />
                         </>

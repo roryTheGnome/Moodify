@@ -139,6 +139,17 @@ app.put("/songs/:id/edit",(req,res)=>{
     });
 });
 
+app.delete("/songs/:id/delete",(req,res)=>{
+    const id=req.params.id;
+
+    db.run("DELETE FROM Song WHERE ID=?",[id],function(err){
+        if(err){
+            res.status(500).json({error:err.message});
+            return;
+        }
+        res.json({deleted:this.changes});
+    });
+});
 
 //Moods-----------------------------------------------------------------------------------------------------------------
 app.get("/moods", (req,res)=>{
