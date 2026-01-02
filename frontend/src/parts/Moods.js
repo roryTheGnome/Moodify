@@ -74,6 +74,9 @@ function MoodDetails({ moodId, onBack }) {
 
     const [selectedSongId, setSelectedSongId] = useState(null);
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [editMood, setEditMood] = useState(null);
+
     useEffect(() => {
         setLoading(true);
         fetch(`http://localhost:3001/moods/${moodId}`)
@@ -96,33 +99,102 @@ function MoodDetails({ moodId, onBack }) {
         );
     }
 
+    function startEdit() {
+        setEditMood({ ...details.mood });
+        setIsEditing(true);
+    }
+
+    function cancelEdit() {
+        setIsEditing(false);
+        setEditMood(null);
+    }
+
+    function saveEdit(){
+        fetch(`http://localhost:3001/moods/${editMood.ID}/edit`,{
+            method:"PUT", headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(editMood)
+        })
+            .then(res=>{
+                if(!res.ok) throw new Error("Update faul");
+                return res.json();
+            })
+            .then(()=>{
+                setDetails({ ...details,mood:editMood});
+                setIsEditing(false);
+            })
+            .catch(err=>alert(err.message));
+    }
+
+    function deleteMood(){
+        if (!window.confirm("Are you sure you want to delete this mood??")) return;
+
+        fetch(`http://localhost:3001/moods/${details.mood.ID}/delete`,{
+            method:"DELETE"
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Delete failed");
+                onBack();
+            })
+            .catch(err => alert(err.message));
+    }
+
     return (
         <>
             <h2 id="Title">Mood Details</h2>
 
-            <p><strong>ID:</strong> {details.mood.ID}</p>
-            <p><strong>Name:</strong> {details.mood.Name}</p>
-            <p><strong>Description:</strong> {details.mood.Description}</p>
-            <p><strong>Created By:</strong> {details.mood.Created_By}</p>
+            {!isEditing ? (
+                <>
+                    <p><strong>ID:</strong> {details.mood.ID}</p>
+                    <p><strong>Name:</strong> {details.mood.Name}</p>
+                    <p><strong>Description:</strong> {details.mood.Description}</p>
+                    <p><strong>Created By:</strong> {details.mood.Created_By}</p>
 
-            <h3>Songs in this mood</h3>
+                    <h3>Songs in this mood</h3>
 
-            {details.songs.length === 0 && (
-                <p>No songs added to this mood</p>
+                    {details.songs.length === 0 && (
+                        <p>No songs added to this mood</p>
+                    )}
+
+                    <ul>
+                        {details.songs.map(song => (
+                            <li key={song.ID}>
+                                <button onClick={() => setSelectedSongId(song.ID)}>{song.Name}</button>
+                                {""}(By: {song.Artist})
+                            </li>
+                        ))}
+                    </ul>
+
+                    <button onClick={onBack}>Back</button>
+                    <button onClick={deleteMood}>Delete</button>
+                    <button onClick={startEdit}>Edit</button>
+
+                    <hr/>
+                </>):(
+                    <>
+                        <input
+                            value={editMood.Name}
+                            onChange={e =>
+                                setEditMood({ ...editMood, Name: e.target.value })
+                            }
+                            placeholder="Mood name"
+                        />
+
+                        <textarea
+                            value={editMood.Description}
+                            onChange={e =>
+                                setEditMood({
+                                    ...editMood,
+                                    Description: e.target.value
+                                })
+                            }
+                            placeholder="Description"
+                        />
+
+                        <button onClick={saveEdit}>Save</button>
+                        <button onClick={cancelEdit}>Cancel</button>
+                        <hr />
+                    </>
             )}
-
-            <ul>
-                {details.songs.map(song => (
-                    <li key={song.ID}>
-                        <button onClick={()=>setSelectedSongId(song.ID)}>{song.Name}</button>
-                        {""}(By: {song.Artist})
-                    </li>
-                ))}
-            </ul>
-
-            <button onClick={onBack}>Back</button>
-
-            <hr />
         </>
     );
 }

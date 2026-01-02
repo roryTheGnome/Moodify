@@ -172,6 +172,38 @@ app.get("/moods/:id", (req,res) =>{
     );
 });
 
+app.put("/moods/:id/edit", (req, res) => {
+    const { Name, Description } = req.body;
+    const id = req.params.id;
+
+    if (!Name || !Description) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    db.run(
+        "UPDATE Mood SET Name=?, Description=? WHERE ID=?",
+        [Name, Description, id],
+        function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ updated: this.changes });
+        }
+    );
+});
+
+app.delete("/moods/:id/delete", (req, res) => {
+    const id = req.params.id;
+
+    db.run("DELETE FROM Mood WHERE ID=?", [id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ deleted: this.changes });
+    });
+});
+
+
 /*app.post("/moods/add", (req,res)=>{
     const {Name, Description, Created_By}=req.body;
 
