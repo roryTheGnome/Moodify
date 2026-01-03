@@ -172,6 +172,36 @@ app.get("/moods/:id", (req,res) =>{
     );
 });
 
+app.post("/moods/add",(req,res)=>{
+    const {Name,Description}=req.body;
+
+    if(!Name || !Description){
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const checkDuplicate = `SELECT ID FROM Mood WHERE Name = ? `;
+
+    db.get(checkDuplicate,[Name],(err,row)=>{
+        if(err){return res.status(500).json(err);}
+
+        if(row){
+            return res.status(409).json({error: "Mood already exists"});
+        }
+
+        const insert=`INSERT INTO Mood (Name, Description, Created_By) VALUES (?,?,2)`;
+
+        db.run(insert,[Name,Description],function(err){
+            if(err){return res.status(500).json(err);}
+
+            res.json({
+                message:"Added succesfully", id:this.lastID
+            });
+        });
+
+    });
+
+});
+
 app.put("/moods/:id/edit", (req, res) => {
     const { Name, Description } = req.body;
     const id = req.params.id;

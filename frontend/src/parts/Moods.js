@@ -5,6 +5,9 @@ function Moods() {
     const [moods, setMoods] = useState([]);
     const [selectedMoodId, setSelectedMoodId] = useState(null);
 
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newMood, setNewMood] = useState({ Name: "", Description: "" });
+
     useEffect(() => {
         fetch("http://localhost:3001/moods")
             .then(res => res.json())
@@ -30,39 +33,102 @@ function Moods() {
         );
     }
 
+    function addMood(){
+        fetch("http://localhost:3001/moods/add",{
+            method:"POST",
+            headers:{"Content-Type": "application/json" },
+            body:JSON.stringify(newMood)
+        })
+            .then(res=>{
+               if(!res.ok){
+                   return res.json().then(err=>{
+                       throw new Error(err.error);
+                   });
+               }
+               return res.json();
+            })
+            .then(()=>{
+                setNewMood({Name:"",Description:""});
+                setShowAddForm(false);
+                refreshMoods();
+            })
+            .catch(err=>alert(err.message));
+    }
+
+    function cancelAdd() {
+        setShowAddForm(false);
+        setNewMood({ Name: "", Description: ""
+        });
+    }
+
     return (
         <section id="MOODS">
-            <h2 id="Title">Moods</h2>
 
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Created By</th>
-                </tr>
-                </thead>
+            {showAddForm &&(
+                <>
+                    <h2 id="Title">Add Mood</h2>
 
-                <tbody>
-                {moods.map(mood => (
-                    <tr key={mood.ID}>
-                        <td>{mood.ID}</td>
-                        <td>
-                            <button
-                                onClick={() => setSelectedMoodId(mood.ID)}
-                            >
-                                {mood.Name}
-                            </button>
-                        </td>
-                        <td>{mood.Description}</td>
-                        <td>{mood.Created_By}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                    <input
+                        placeholder="Mood name"
+                        value={newMood.Name}
+                        onChange={e =>
+                            setNewMood({ ...newMood, Name: e.target.value })
+                        }
+                    />
 
-            <hr />
+                    <textarea
+                        placeholder="Description"
+                        value={newMood.Description}
+                        onChange={e =>
+                            setNewMood({ ...newMood, Description: e.target.value })
+                        }
+                    />
+
+                    <br />
+
+                    <button onClick={addMood}>Add</button>
+                    <button onClick={cancelAdd}>Cancel</button>
+
+                    <hr/>
+                </>
+            )}
+            {!showAddForm && (
+                <>
+                    <h2 id="Title">Moods</h2>
+
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Created By</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {moods.map(mood => (
+                            <tr key={mood.ID}>
+                                <td>{mood.ID}</td>
+                                <td>
+                                    <button
+                                        onClick={() => setSelectedMoodId(mood.ID)}
+                                    >
+                                        {mood.Name}
+                                    </button>
+                                </td>
+                                <td>{mood.Description}</td>
+                                <td>{mood.Created_By}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+
+                    <button onClick={()=>setShowAddForm(true)}>Add Mood</button>
+
+                    <hr/>
+                </>
+            )}
 
         </section>
     );
