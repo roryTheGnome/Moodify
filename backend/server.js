@@ -233,17 +233,6 @@ app.delete("/moods/:id/delete", (req, res) => {
     });
 });
 
-app.get("/moods/:id/availablesongs",(req,res)=>{
-    const moodID=req.params.id;
-
-    const q=`SELECT * FROM Song WHERE ID NOT IN (SELECT Song_ID FROM Mood_Song WHERE Mood_ID=?)`;
-
-    db.all(q, [moodID],(err,rows)=>{
-        if(err) return res.status(500).json({error: err.message});
-        res.json(rows);
-    });
-}); //jsut a helper
-
 
 /*app.post("/moods/add", (req,res)=>{
     const {Name, Description, Created_By}=req.body;
@@ -279,6 +268,16 @@ app.get("/moods/:id/availablesongs",(req,res)=>{
 } );*/
 
 //Mood-Account----------------------------------------------------------------------------------------------------------
+app.get("/moods/:id/availablesongs",(req,res)=>{
+    const moodID=req.params.id;
+
+    const q=`SELECT * FROM Song WHERE ID NOT IN (SELECT Song_ID FROM Mood_Song WHERE Mood_ID=?)`;
+
+    db.all(q, [moodID],(err,rows)=>{
+        if(err) return res.status(500).json({error: err.message});
+        res.json(rows);
+    });
+}); //jsut a helper
 
 app.post("/moods/:id/songs",(req,res)=>{
     const moodID=req.params.id;
@@ -304,6 +303,24 @@ app.post("/moods/:id/songs",(req,res)=>{
 
             res.json({message:"Song added to mood succesfully"});
         });
+
+    });
+
+});
+
+app.delete("/moods/:moodID/songs/:songID/delete",(req,res)=>{
+    const {moodID,songID}=req.params;
+
+    const deletee=`DELETE FROM Mood_Song WHERE Mood_ID=? AND Song_ID=?`;
+
+    db.run(deletee,[moodID,songID],function (err){
+       if(err){return res.status(500).json({error:err.message});}
+
+       if(this.changes===0){
+           return res.status(404).json({error:"Song is already not in the mod"});
+       }
+
+       res.json({message:"Song removed from mood"});
 
     });
 

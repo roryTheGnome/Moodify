@@ -245,6 +245,29 @@ function MoodDetails({ moodId, onBack }) {
             .catch(err => alert(err.message));
     }
 
+    function removeSongFromMood(songID){
+        if(!window.confirm("Are you sure about removing this song from this mood??"))return;
+
+        fetch(`http://localhost:3001/moods/${moodId}/songs/${songID}/delete`,{method:"DELETE"})
+            .then(res=>{
+                if(!res.ok){
+                    return res.json().then(err=>{
+                        throw new Error (err.error);
+                    });
+                }
+                return res.json();
+            })
+            .then(()=>{
+                return fetch(`http://localhost:3001/moods/${moodId}`);//keep it {re}fresh
+            })
+            .then(res=>res.json())
+            .then(data=>setDetails(data))
+            .then(()=>{return fetch(`http://localhost:3001/moods/${moodId}/availablesongs`);})//noe that song is available for adding
+            .then(res=>res.json())
+            .then(data=>setAvailableSongs(data))
+            .catch(err=>alert(err.message));
+    }
+
     return (
         <>
             <h2 id="Title">Mood Details</h2>
@@ -267,6 +290,8 @@ function MoodDetails({ moodId, onBack }) {
                             <li key={song.ID}>
                                 <button onClick={() => setSelectedSongId(song.ID)}>{song.Name}</button>
                                 {""}(By: {song.Artist})
+                                {" "}
+                                <button onClick={() => removeSongFromMood(song.ID)}>Remove</button>
                             </li>
                         ))}
                     </ul>
