@@ -143,6 +143,10 @@ function MoodDetails({ moodId, onBack }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editMood, setEditMood] = useState(null);
 
+    const [availableSongs, setAvailableSongs] = useState([]);
+    const [selectedSongToAdd, setSelectedSongToAdd] = useState("");
+
+
     useEffect(() => {
         setLoading(true);
         fetch(`http://localhost:3001/moods/${moodId}`)
@@ -151,6 +155,9 @@ function MoodDetails({ moodId, onBack }) {
                 setDetails(data);
                 setLoading(false);
             });
+        fetch(`http://localhost:3001/moods/${moodId}/availablesongs`)
+            .then(res => res.json())
+            .then(data => setAvailableSongs(data));
     }, [moodId]);
 
     if (loading) return <p>Loading...</p>;
@@ -204,6 +211,40 @@ function MoodDetails({ moodId, onBack }) {
             .catch(err => alert(err.message));
     }
 
+    function addSongToMood(){
+        if(!selectedSongToAdd){
+            alert("You need to select a song");
+            return;
+        }
+
+        fetch(`http://localhost:3001/moods/${moodId}/songs`,{
+            method:"POST", headers: {"Content-Type": "application/json"},
+            body:JSON.stringify({Song_ID:Number(selectedSongToAdd)})
+        })
+            .then(res=>{
+                if(!res.ok){
+                    return res.json().then(err=>{
+                        throw new Error(err.error);
+                    });
+                }
+                return res.json();
+            })
+            .then(()=>{
+                return fetch(`http://localhost:3001/moods/${moodId}`); //justt to refresh
+            })
+            .then(res=>res.json())
+            .then(data => setDetails(data))
+            .then(() => {
+                return fetch(`http://localhost:3001/moods/${moodId}/availablesongs`); //REFRESH THE DATA ON THE DROP
+            })
+            .then(res => res.json())
+            .then(data => {
+                setAvailableSongs(data);
+                setSelectedSongToAdd("");
+            })
+            .catch(err => alert(err.message));
+    }
+
     return (
         <>
             <h2 id="Title">Mood Details</h2>
@@ -229,6 +270,29 @@ function MoodDetails({ moodId, onBack }) {
                             </li>
                         ))}
                     </ul>
+
+                    <h4>Add song to this mood</h4>
+
+                    {availableSongs.length === 0 ? (
+                        <p>There is no song available for this mood</p>
+                    ) : (
+                        <>
+                            <select
+                                value={selectedSongToAdd}
+                                onChange={e => setSelectedSongToAdd(e.target.value)}
+                            >
+                                <option value="">-- Select a song --</option>
+                                {availableSongs.map(song => (
+                                    <option key={song.ID} value={song.ID}>
+                                        {song.Name} – {song.Artist}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <button onClick={addSongToMood}>Add Song</button>
+                        </>
+                    )}
+
 
                     <button onClick={onBack}>Back</button>
                     <button onClick={deleteMood}>Delete</button>

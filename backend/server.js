@@ -14,7 +14,7 @@ const db=new sqlite3.Database("./database.db");
 
 //MY CHEATSHEAT : https://www.codecademy.com/learn/learn-node-sqlite/modules/learn-node-sqlite-module/cheatsheet
 
-//SONGS-----------------------------------------------------------------------------------------------------------------
+//SONG------------------------------------------------------------------------------------------------------------------
 app.get("/songs",(req,res) =>{
     db.all("SELECT * FROM Song", [],(err, rows)=>{
         res.json(rows);
@@ -151,7 +151,7 @@ app.delete("/songs/:id/delete",(req,res)=>{
     });
 });
 
-//Moods-----------------------------------------------------------------------------------------------------------------
+//Mood------------------------------------------------------------------------------------------------------------------
 app.get("/moods", (req,res)=>{
     db.all("SELECT Mood.ID, Mood.Name, Mood.Description, Account.Name AS Created_By FROM Mood JOIN Account ON Mood.Created_By = Account.ID",
         [],(err, rows)=> res.json(rows));
@@ -233,6 +233,17 @@ app.delete("/moods/:id/delete", (req, res) => {
     });
 });
 
+app.get("/moods/:id/availablesongs",(req,res)=>{
+    const moodID=req.params.id;
+
+    const q=`SELECT * FROM Song WHERE ID NOT IN (SELECT Song_ID FROM Mood_Song WHERE Mood_ID=?)`;
+
+    db.all(q, [moodID],(err,rows)=>{
+        if(err) return res.status(500).json({error: err.message});
+        res.json(rows);
+    });
+}); //jsut a helper
+
 
 /*app.post("/moods/add", (req,res)=>{
     const {Name, Description, Created_By}=req.body;
@@ -267,8 +278,38 @@ app.delete("/moods/:id/delete", (req, res) => {
 
 } );*/
 
+//Mood-Account----------------------------------------------------------------------------------------------------------
 
-//Accounts--------------------------------------------------------------------------------------------------------------
+app.post("/moods/:id/songs",(req,res)=>{
+    const moodID=req.params.id;
+    const {Song_ID}=req.body;
+
+    if(!Song_ID){
+        return res.status(400).json({error:"One would need a song to add a song"});
+    }
+
+    const checkDuplicate=`SELECT * FROM Mood_Song WHERE Mood_ID=? AND Song_ID=?`;
+
+    db.get(checkDuplicate,[moodID,Song_ID],(err, row)=>{
+        if(err)return res.status(500).json({error:err.message});
+
+        if(row){
+            return res.status(409).json({error:"Mood already has this song"});
+        }
+
+        const insert=`INSERT INTO Mood_Song (Mood_ID, Song_ID, Added_At) VALUES (?,?,datetime('now'))`;
+
+        db.run(insert,[moodID,Song_ID],function (err) {
+            if(err) return res.status(500).json({error:err.message});
+
+            res.json({message:"Song added to mood succesfully"});
+        });
+
+    });
+
+});
+
+//Account---------------------------------------------------------------------------------------------------------------
 app.get("/users", (req,res)=>{
     db.all('SELECT Name FROM Account',[],(err,rows)=>res.json(rows));
 });
