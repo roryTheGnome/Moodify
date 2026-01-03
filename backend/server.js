@@ -142,12 +142,15 @@ app.put("/songs/:id/edit",(req,res)=>{
 app.delete("/songs/:id/delete",(req,res)=>{
     const id=req.params.id;
 
-    db.run("DELETE FROM Song WHERE ID=?",[id],function(err){
-        if(err){
-            res.status(500).json({error:err.message});
-            return;
-        }
-        res.json({deleted:this.changes});
+    db.run("DELETE FROM Mood_Song WHERE Song_ID=?", [id], function(err){
+        if (err) return res.status(500).json({error: err.message});
+        db.run("DELETE FROM Song WHERE ID=?", [id], function (err) {
+            if (err) {
+                res.status(500).json({error: err.message});
+                return;
+            }
+            res.json({deleted: this.changes});
+        });
     });
 });
 
@@ -225,12 +228,15 @@ app.put("/moods/:id/edit", (req, res) => {
 app.delete("/moods/:id/delete", (req, res) => {
     const id = req.params.id;
 
-    db.run("DELETE FROM Mood WHERE ID=?", [id], function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json({ deleted: this.changes });
-    });
+    db.run("DELETE FROM Mood_Song WHERE Mood_ID=?", [id], function(err){
+        if (err) return res.status(500).json({error: err.message});
+        db.run("DELETE FROM Mood WHERE ID=?", [id], function (err) {
+            if (err) {
+                return res.status(500).json({error: err.message});
+            }
+            res.json({deleted: this.changes});
+        });
+    })
 });
 
 
