@@ -385,6 +385,45 @@ app.post("/account/register",async (req,res)=>{
 
 });
 
+app.post("/account/login",(req,res)=>{
+    const {Name,Password}=req.body;
+
+    if (!Name || !Password) {
+        return res.status(400).json({
+            error: "Enter all the informations for loging in"
+        });
+    }
+
+    const chek=`SELECT ID, Name, Password, God_Privilege FROM Account WHERE Name=?`;
+
+    db.get(chek,[Name], async (err,user)=>{
+        if(err){
+            return res.status(500).json({error:err.message});
+        }
+
+        if (!user) {
+            return res.status(401).json({
+                error: "Invalid name"
+            });
+        }
+
+        const match=await bcrypt.compare(Password,user.Password);
+
+        if(!match){
+            return res.status(401).json({error:"Wrong password"});
+        }
+
+        res.json({
+            message:"Logged in",
+            user:{
+                ID:user.ID ,
+                Name: user.Name,
+                God_Privilege: user.God_Privilege
+            }
+        });
+    });
+})
+
 
 app.listen(port, () => {
     console.log(`Hey, u might wanna check http://localhost:${port}`);
