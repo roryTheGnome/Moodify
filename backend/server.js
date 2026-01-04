@@ -5,6 +5,9 @@ const sqlite3=require("sqlite3").verbose();
 const cors=require("cors");
 //cause backend n front runs on different places for some reason
 
+const bcrypt = require("bcrypt");
+//for phase 2 (check usefull links when needed)
+
 const app=express();
 const port=3001;
 app.use(cors());
@@ -335,6 +338,51 @@ app.delete("/moods/:moodID/songs/:songID/delete",(req,res)=>{
 //Account---------------------------------------------------------------------------------------------------------------
 app.get("/users", (req,res)=>{
     db.all('SELECT Name FROM Account',[],(err,rows)=>res.json(rows));
+});
+
+app.post("/account/register",async (req,res)=>{
+    const {Name,Password}=req.body;
+
+    if (!Name || !Password){
+        return res.status(400).json({error:"All fields are required (dude there are only two cmon)"});
+    }
+
+    if(Password.length<4){
+        return res.status(400).json({error:"Password must be at lease 4 char log"});
+    }
+
+    const checDup=`SELECT ID FROM Account WHERE Name=?`;
+
+    db.get(checDup,[Name],async (err,row)=>{
+        if(err){
+            return res.status(500).json({error:err.message});
+        }
+
+        if(row){
+            return res.status(409).json({error:"This name already in use"});
+        }
+
+        try{
+            const hash = await bcrypt.hash(Password, 10); //i coulndt think of a better way for enctyption, im not sure even if this is the right way
+
+            const instert=`INSERT INTO Account (Name,Password,God_Privilege) VALUES (?,?,0)`;
+
+            db.run(instert,[Name,hash],function(err){
+                if(err){
+                    return res.status(500).json({error:err.message});
+                }
+
+                res.status(200).json({
+                    message:"User added succsesfully",
+                    id: this.lastID
+                });
+            });
+        }catch (e){
+            res.status(500).json({error:"Hashing error"});
+        }
+
+    });
+
 });
 
 

@@ -1,3 +1,5 @@
 https://www.codecademy.com/learn/learn-node-sqlite/modules/learn-node-sqlite-module/cheatsheet
 
 https://www.w3schools.com/tags/ref_httpmessages.asp
+
+https://www.npmjs.com/package/bcrypt
