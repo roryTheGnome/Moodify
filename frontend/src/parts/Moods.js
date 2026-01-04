@@ -1,70 +1,56 @@
+import { SongDetails } from "./Songs";
 import { useEffect, useState } from "react";
-import {SongDetails} from "./Songs";
+import { useNavigate, useParams } from "react-router-dom";
 
 function Moods() {
     const [moods, setMoods] = useState([]);
-    const [selectedMoodId, setSelectedMoodId] = useState(null);
-
     const [showAddForm, setShowAddForm] = useState(false);
     const [newMood, setNewMood] = useState({ Name: "", Description: "" });
 
+    const navigate = useNavigate();
+
     useEffect(() => {
-        fetch("http://localhost:3001/moods")
-            .then(res => res.json())
-            .then(data => setMoods(data))
-            .catch(err => console.error(err));
+        refreshMoods();
     }, []);
 
     function refreshMoods() {
         fetch("http://localhost:3001/moods")
             .then(res => res.json())
-            .then(data => setMoods(data));
+            .then(data => setMoods(data))
+            .catch(err => console.error(err));
     }
 
-    if (selectedMoodId) {
-        return (
-            <MoodDetails
-                moodId={selectedMoodId}
-                onBack={() => {
-                    setSelectedMoodId(null);
-                    refreshMoods();
-                }}
-            />
-        );
-    }
-
-    function addMood(){
-        fetch("http://localhost:3001/moods/add",{
-            method:"POST",
-            headers:{"Content-Type": "application/json" },
-            body:JSON.stringify(newMood)
+    function addMood() {
+        fetch("http://localhost:3001/moods/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newMood)
         })
-            .then(res=>{
-               if(!res.ok){
-                   return res.json().then(err=>{
-                       throw new Error(err.error);
-                   });
-               }
-               return res.json();
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw new Error(err.error);
+                    });
+                }
+                return res.json();
             })
-            .then(()=>{
-                setNewMood({Name:"",Description:""});
+            .then(() => {
+                setNewMood({ Name: "", Description: "" });
                 setShowAddForm(false);
                 refreshMoods();
             })
-            .catch(err=>alert(err.message));
+            .catch(err => alert(err.message));
     }
 
     function cancelAdd() {
         setShowAddForm(false);
-        setNewMood({ Name: "", Description: ""
-        });
+        setNewMood({ Name: "", Description: "" });
     }
 
     return (
         <section id="MOODS">
 
-            {showAddForm &&(
+            {showAddForm ? (
                 <>
                     <h2 id="Title">Add Mood</h2>
 
@@ -88,11 +74,9 @@ function Moods() {
 
                     <button onClick={addMood}>Add</button>
                     <button onClick={cancelAdd}>Cancel</button>
-
-                    <hr/>
+                    <hr />
                 </>
-            )}
-            {!showAddForm && (
+            ) : (
                 <>
                     <h2 id="Title">Moods</h2>
 
@@ -105,14 +89,13 @@ function Moods() {
                             <th>Created By</th>
                         </tr>
                         </thead>
-
                         <tbody>
                         {moods.map(mood => (
                             <tr key={mood.ID}>
                                 <td>{mood.ID}</td>
                                 <td>
                                     <button
-                                        onClick={() => setSelectedMoodId(mood.ID)}
+                                        onClick={() => navigate(`/moods/${mood.ID}`)}
                                     >
                                         {mood.Name}
                                     </button>
@@ -124,37 +107,38 @@ function Moods() {
                         </tbody>
                     </table>
 
-                    <button onClick={()=>setShowAddForm(true)}>Add Mood</button>
-
-                    <hr/>
+                    <button onClick={() => setShowAddForm(true)}>Add Mood</button>
+                    <hr />
                 </>
             )}
-
         </section>
     );
 }
 
-function MoodDetails({ moodId, onBack }) {
+function MoodDetails() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const moodId = Number(id);
+
     const [details, setDetails] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const [selectedSongId, setSelectedSongId] = useState(null);
-
     const [isEditing, setIsEditing] = useState(false);
     const [editMood, setEditMood] = useState(null);
-
     const [availableSongs, setAvailableSongs] = useState([]);
     const [selectedSongToAdd, setSelectedSongToAdd] = useState("");
 
-
     useEffect(() => {
         setLoading(true);
+
         fetch(`http://localhost:3001/moods/${moodId}`)
             .then(res => res.json())
             .then(data => {
                 setDetails(data);
                 setLoading(false);
             });
+
         fetch(`http://localhost:3001/moods/${moodId}/availablesongs`)
             .then(res => res.json())
             .then(data => setAvailableSongs(data));
@@ -182,90 +166,96 @@ function MoodDetails({ moodId, onBack }) {
         setEditMood(null);
     }
 
-    function saveEdit(){
-        fetch(`http://localhost:3001/moods/${editMood.ID}/edit`,{
-            method:"PUT", headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(editMood)
-        })
-            .then(res=>{
-                if(!res.ok) throw new Error("Update faul");
-                return res.json();
-            })
-            .then(()=>{
-                setDetails({ ...details,mood:editMood});
-                setIsEditing(false);
-            })
-            .catch(err=>alert(err.message));
-    }
-
-    function deleteMood(){
-        if (!window.confirm("Are you sure you want to delete this mood??")) return;
-
-        fetch(`http://localhost:3001/moods/${details.mood.ID}/delete`,{
-            method:"DELETE"
+    function saveEdit() {
+        fetch(`http://localhost:3001/moods/${editMood.ID}/edit`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(editMood)
         })
             .then(res => {
-                if (!res.ok) throw new Error("Delete failed");
-                onBack();
+                if (!res.ok) throw new Error("Update failed");
+                return res.json();
+            })
+            .then(() => {
+                setDetails({...details,mood:editMood});
+                setIsEditing(false);
             })
             .catch(err => alert(err.message));
     }
 
-    function addSongToMood(){
-        if(!selectedSongToAdd){
-            alert("You need to select a song");
+    function deleteMood() {
+        if (!window.confirm("Are you sure you want to delete this mood??")) return;
+
+        fetch(`http://localhost:3001/moods/${moodId}/delete`, {
+            method: "DELETE"
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("upsi,delete failed");
+                navigate("/moods");
+            })
+            .catch(err => alert(err.message));
+    }
+
+    function addSongToMood() {
+        if (!selectedSongToAdd) {
+            alert("Pick a song");
             return;
         }
 
-        fetch(`http://localhost:3001/moods/${moodId}/songs`,{
-            method:"POST", headers: {"Content-Type": "application/json"},
-            body:JSON.stringify({Song_ID:Number(selectedSongToAdd)})
+        fetch(`http://localhost:3001/moods/${moodId}/songs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Song_ID: Number(selectedSongToAdd) })
         })
-            .then(res=>{
-                if(!res.ok){
-                    return res.json().then(err=>{
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
                         throw new Error(err.error);
                     });
                 }
                 return res.json();
             })
-            .then(()=>{
-                return fetch(`http://localhost:3001/moods/${moodId}`); //justt to refresh
-            })
-            .then(res=>res.json())
-            .then(data => setDetails(data))
-            .then(() => {
-                return fetch(`http://localhost:3001/moods/${moodId}/availablesongs`); //REFRESH THE DATA ON THE DROP
-            })
-            .then(res => res.json())
-            .then(data => {
-                setAvailableSongs(data);
-                setSelectedSongToAdd("");
-            })
+            .then(() =>
+                fetch(`http://localhost:3001/moods/${moodId}`)
+                    .then(res => res.json())
+                    .then(data => setDetails(data))
+            )
+            .then(() =>
+                fetch(`http://localhost:3001/moods/${moodId}/availablesongs`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setAvailableSongs(data);
+                        setSelectedSongToAdd("");
+                    })
+            )
             .catch(err => alert(err.message));
     }
 
-    function removeSongFromMood(songID){
-        if(!window.confirm("Are you sure about removing this song from this mood??"))return;
+    function removeSongFromMood(songID) {
+        if (!window.confirm("Are you sure to remove this song??")) return;
 
-        fetch(`http://localhost:3001/moods/${moodId}/songs/${songID}/delete`,{method:"DELETE"})
-            .then(res=>{
-                if(!res.ok){
-                    return res.json().then(err=>{
-                        throw new Error (err.error);
+        fetch(`http://localhost:3001/moods/${moodId}/songs/${songID}/delete`, {
+            method: "DELETE"
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw new Error(err.error);
                     });
                 }
                 return res.json();
             })
-            .then(()=>{
-                return fetch(`http://localhost:3001/moods/${moodId}`);//keep it {re}fresh
-            })
-            .then(res=>res.json())
-            .then(data=>setDetails(data))
-            .then(()=>{return fetch(`http://localhost:3001/moods/${moodId}/availablesongs`);})//noe that song is available for adding
-            .then(res=>res.json())
-            .then(data=>setAvailableSongs(data))
-            .catch(err=>alert(err.message));
+            .then(() =>
+                fetch(`http://localhost:3001/moods/${moodId}`)
+                    .then(res => res.json())
+                    .then(data => setDetails(data))
+            )
+            .then(() =>
+                fetch(`http://localhost:3001/moods/${moodId}/availablesongs`)
+                    .then(res => res.json())
+                    .then(data => setAvailableSongs(data))
+            )
+            .catch(err => alert(err.message));
     }
 
     return (
@@ -281,74 +271,66 @@ function MoodDetails({ moodId, onBack }) {
 
                     <h3>Songs in this mood</h3>
 
-                    {details.songs.length === 0 && (
-                        <p>No songs added to this mood</p>
-                    )}
+                    {details.songs.length === 0 && <p>No songs added</p>}
 
                     <ul>
                         {details.songs.map(song => (
                             <li key={song.ID}>
-                                <button onClick={() => setSelectedSongId(song.ID)}>{song.Name}</button>
-                                {""}(By: {song.Artist})
+                                <button onClick={() => setSelectedSongId(song.ID)}>
+                                    {song.Name}
+                                </button>
+                                {" "}({song.Artist})
                                 {" "}
-                                <button onClick={() => removeSongFromMood(song.ID)}>Remove</button>
+                                <button onClick={() => removeSongFromMood(song.ID)}>
+                                    Remove
+                                </button>
                             </li>
                         ))}
                     </ul>
 
-                    <h4>Add song to this mood</h4>
+                    <h4>Add song</h4>
 
                     {availableSongs.length === 0 ? (
-                        <p>There is no song available for this mood</p>
+                        <p>No available songs</p>
                     ) : (
                         <>
                             <select
                                 value={selectedSongToAdd}
                                 onChange={e => setSelectedSongToAdd(e.target.value)}
                             >
-                                <option value="">-- Select a song --</option>
+                                <option value="">-- Select --</option>
                                 {availableSongs.map(song => (
                                     <option key={song.ID} value={song.ID}>
                                         {song.Name} – {song.Artist}
                                     </option>
                                 ))}
                             </select>
-
-                            <button onClick={addSongToMood}>Add Song</button>
+                            <button onClick={addSongToMood}>Add</button>
                         </>
                     )}
 
-
-                    <button onClick={onBack}>Back</button>
+                    <br />
+                    <button onClick={() => navigate("/moods")}>Back</button>
                     <button onClick={deleteMood}>Delete</button>
                     <button onClick={startEdit}>Edit</button>
-
-                    <hr/>
-                </>):(
-                    <>
-                        <input
-                            value={editMood.Name}
-                            onChange={e =>
-                                setEditMood({ ...editMood, Name: e.target.value })
-                            }
-                            placeholder="Mood name"
-                        />
-
-                        <textarea
-                            value={editMood.Description}
-                            onChange={e =>
-                                setEditMood({
-                                    ...editMood,
-                                    Description: e.target.value
-                                })
-                            }
-                            placeholder="Description"
-                        />
-
-                        <button onClick={saveEdit}>Save</button>
-                        <button onClick={cancelEdit}>Cancel</button>
-                        <hr />
-                    </>
+                </>
+            ) : (
+                <>
+                    <input
+                        value={editMood.Name}
+                        onChange={e =>
+                            setEditMood({ ...editMood, Name: e.target.value })
+                        }
+                    />
+                    <textarea
+                        value={editMood.Description}
+                        onChange={e =>
+                            setEditMood({ ...editMood, Description: e.target.value })
+                        }
+                    />
+                    <button onClick={saveEdit}>Save</button>
+                    <button onClick={cancelEdit}>Cancel</button>
+                </>
             )}
         </>
     );

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {MoodDetails} from "./Moods";
 
 function Songs() {
@@ -179,7 +180,7 @@ function SongDetails({ songId, onBack }) {
     const [editSong, setEditSong] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
-    const [selectedMoodId, setSelectedMoodId] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         setLoading(true);
@@ -191,14 +192,6 @@ function SongDetails({ songId, onBack }) {
             });
     }, [songId]);
 
-    if (selectedMoodId) {
-        return (
-            <MoodDetails
-                moodId={selectedMoodId}
-                onBack={() => setSelectedMoodId(null)}
-            />
-        );
-    }
 
     function startEdit() {
         setEditSong({ ...details.song });
@@ -265,8 +258,10 @@ function SongDetails({ songId, onBack }) {
                     <ul>
                         {details.moods.map(mood => (
                             <li key={mood.ID}>
-                                <button onClick={()=>setSelectedMoodId(mood.ID)}>{mood.Name}</button>
-                                {""}(created by {mood.Created_By})
+                                <button onClick={() => navigate(`/moods/${mood.ID}`)}>
+                                    {mood.Name}
+                                </button>
+                                (created by {mood.Created_By})
                             </li>
                         ))}
                     </ul>
