@@ -14,14 +14,23 @@ function Songs({user}) {
         Release_Date: ""
     });
 
+    const [page, setPage] = useState(1);
+    const limit = 15;
+    const [total, setTotal] = useState(0);
+
+
     useEffect(() => {
         fetchSongs();
-    }, []);
+    }, [page]);
 
     function fetchSongs() {
-        fetch("http://localhost:3001/songs")
+        fetch(`http://localhost:3001/songs?page=${page}&limit=${limit}`)
             .then(res => res.json())
-            .then(data => setSongs(data));
+            .then(result => {
+                setSongs(result.data);
+                setTotal(result.total);
+            })
+            .catch(err => console.error(err));
     }
 
     function addSong() {
@@ -161,6 +170,16 @@ function Songs({user}) {
                         ))}
                         </tbody>
                     </table>
+
+                    <div style={{ marginTop: "10px" }}>
+                        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+                            Prev</button>
+
+                        <span style={{ margin: "0 10px" }}>Page {page} of {Math.ceil(total / limit)}</span>
+
+                        <button disabled={page >= Math.ceil(total / limit)} onClick={() => setPage(page + 1)}>
+                            Next</button>
+                    </div>
 
                     <br />
 

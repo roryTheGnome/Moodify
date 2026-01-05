@@ -19,8 +19,24 @@ const db=new sqlite3.Database("./database.db");
 
 //SONG------------------------------------------------------------------------------------------------------------------
 app.get("/songs",(req,res) =>{
-    db.all("SELECT * FROM Song", [],(err, rows)=>{
-        res.json(rows);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const offset = (page-1)*limit;
+
+    const songsQuery = `SELECT * FROM Song LIMIT ? OFFSET ?`;
+    const countQuery = `SELECT COUNT(*) AS total FROM Song`;
+
+    db.get(countQuery, [], (err, countRow) => {
+        if (err) return res.status(500).json(err);
+
+        db.all(songsQuery, [limit, offset], (err, rows) => {
+            if (err) return res.status(500).json(err);
+
+            res.json({
+                data: rows,
+                total: countRow.total
+            });
+        });
     });
 });
 
@@ -158,10 +174,31 @@ app.delete("/songs/:id/delete",(req,res)=>{
 });
 
 //Mood------------------------------------------------------------------------------------------------------------------
-app.get("/moods", (req,res)=>{
-    db.all("SELECT Mood.ID, Mood.Name, Mood.Description, Account.Name AS Created_By FROM Mood JOIN Account ON Mood.Created_By = Account.ID",
-        [],(err, rows)=> res.json(rows));
+app.get("/moods", (req, res) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
+
+    const moodsQuery = `
+        SELECT Mood.ID, Mood.Name, Mood.Description, Account.Name AS Created_By FROM Mood
+        JOIN Account ON Mood.Created_By = Account.ID LIMIT ? OFFSET ?`;
+
+    const countQuery = `SELECT COUNT(*) AS total FROM Mood`;
+
+    db.get(countQuery, [], (err, countRow) => {
+        if (err) return res.status(500).json(err);
+
+        db.all(moodsQuery, [limit, offset], (err, rows) => {
+            if (err) return res.status(500).json(err);
+
+            res.json({
+                data: rows,
+                total: countRow.total
+            });
+        });
+    });
 });
+
 
 app.get("/moods/:id", (req,res) =>{
     const MID=req.params.id;

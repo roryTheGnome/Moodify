@@ -7,16 +7,23 @@ function Moods({user}) {
     const [showAddForm, setShowAddForm] = useState(false);
     const [newMood, setNewMood] = useState({ Name: "", Description: "" });
 
+    const [page, setPage] = useState(1);
+    const limit = 5; //lets call 5 mood per page tho rn i dont think i have 5 moods but why not
+    const [total, setTotal] = useState(0);
+
     const navigate = useNavigate();
 
     useEffect(() => {
         refreshMoods();
-    }, []);
+    }, [page]);
 
     function refreshMoods() {
-        fetch("http://localhost:3001/moods")
+        fetch(`http://localhost:3001/moods?page=${page}&limit=${limit}`)
             .then(res => res.json())
-            .then(data => setMoods(data))
+            .then(result => {
+                setMoods(result.data);
+                setTotal(result.total);
+            })
             .catch(err => console.error(err));
     }
 
@@ -116,9 +123,17 @@ function Moods({user}) {
                         </tbody>
                     </table>
 
-                    {user&& (
-                        <button onClick={() => setShowAddForm(true)}>Add Mood</button>
-                    )}
+                    {/*margin =>spcae outside     padding=>space inside*/}
+                    <div style={{ marginTop: "10px" }}>
+
+                        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+                            Prev</button>
+
+                        <span style={{ margin: "0 10px" }}>Page {page} of {Math.ceil(total / limit)}</span>
+
+                        <button disabled={page >= Math.ceil(total / limit)} onClick={() => setPage(page + 1)}>
+                            Next</button>
+                    </div>
 
                     <hr />
                 </>
