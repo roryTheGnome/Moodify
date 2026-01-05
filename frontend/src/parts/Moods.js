@@ -1,6 +1,7 @@
 import { SongDetails } from "./Songs";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function Moods({user}) {
     const [moods, setMoods] = useState([]);
@@ -12,6 +13,8 @@ function Moods({user}) {
     const [total, setTotal] = useState(0);
 
     const navigate = useNavigate();
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         refreshMoods();
@@ -28,10 +31,8 @@ function Moods({user}) {
     }
 
     function addMood() {
-        if (!user) {
-            alert("You must log in to add a mood");
-            return;
-        }
+        if (!user) {alert(t("You must log in to add a mood"));return;}
+
         fetch("http://localhost:3001/moods/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -71,7 +72,7 @@ function Moods({user}) {
                     <h2 id="Title">Add Mood</h2>
 
                     <input
-                        placeholder="Mood name"
+                        placeholder={t("Name")}
                         value={newMood.Name}
                         onChange={e =>
                             setNewMood({ ...newMood, Name: e.target.value })
@@ -79,7 +80,7 @@ function Moods({user}) {
                     />
 
                     <textarea
-                        placeholder="Description"
+                        placeholder={t("Description")}
                         value={newMood.Description}
                         onChange={e =>
                             setNewMood({ ...newMood, Description: e.target.value })
@@ -88,21 +89,21 @@ function Moods({user}) {
 
                     <br />
 
-                    <button onClick={addMood}>Add</button>
-                    <button onClick={cancelAdd}>Cancel</button>
+                    <button onClick={addMood}>{t("Add")}</button>
+                    <button onClick={cancelAdd}>{t("Cancel")}</button>
                     <hr />
                 </>
             ) : (
                 <>
-                    <h2 id="Title">Moods</h2>
+                    <h2 id="Title">{t("Moods")}</h2>
 
                     <table>
                         <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Created By</th>
+                            <th>{t("Name")}</th>
+                            <th>{t("Description")}</th>
+                            <th>{t("Created By")}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -127,12 +128,12 @@ function Moods({user}) {
                     <div style={{ marginTop: "10px" }}>
 
                         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-                            Prev</button>
+                            {t("Page")}</button>
 
                         <span style={{ margin: "0 10px" }}>Page {page} of {Math.ceil(total / limit)}</span>
 
                         <button disabled={page >= Math.ceil(total / limit)} onClick={() => setPage(page + 1)}>
-                            Next</button>
+                            {t("Next")}</button>
                     </div>
 
                     <hr />
@@ -156,6 +157,8 @@ function MoodDetails({user}) {
     const [availableSongs, setAvailableSongs] = useState([]);
     const [selectedSongToAdd, setSelectedSongToAdd] = useState("");
 
+    const { t } = useTranslation();
+
     useEffect(() => {
         setLoading(true);
 
@@ -171,8 +174,7 @@ function MoodDetails({user}) {
             .then(data => setAvailableSongs(data));
     }, [moodId]);
 
-    if (loading) return <p>Loading...</p>;
-    if (!details) return <p>Mood not found</p>;
+    if (!details) return <p>{t("Mood not found")}</p>;
 
     if (selectedSongId) {
         return (
@@ -291,18 +293,18 @@ function MoodDetails({user}) {
 
     return (
         <>
-            <h2 id="Title">Mood Details</h2>
+            <h2 id="Title">{t("Mood Details")}</h2>
 
             {!isEditing ? (
                 <>
                     <p><strong>ID:</strong> {details.mood.ID}</p>
-                    <p><strong>Name:</strong> {details.mood.Name}</p>
-                    <p><strong>Description:</strong> {details.mood.Description}</p>
-                    <p><strong>Created By:</strong> {details.mood.Created_By}</p>
+                    <p><strong>{t("Name")}:</strong> {details.mood.Name}</p>
+                    <p><strong>{t("Description")}:</strong> {details.mood.Description}</p>
+                    <p><strong>{t("Created By")}:</strong> {details.mood.Created_By}</p>
 
-                    <h3>Songs in this mood</h3>
+                    <h3>{t("Songs in this mood")}</h3>
 
-                    {details.songs.length === 0 && <p>No songs added</p>}
+                    {details.songs.length === 0 && <p>{t("No songs added")}</p>}
 
                     <ul>
                         {details.songs.map(song => (
@@ -313,7 +315,7 @@ function MoodDetails({user}) {
                                 {" "}({song.Artist})
                                 {" "}{user && details.mood.Created_By === user.Name &&
                                 (<button onClick={() => removeSongFromMood(song.ID)}>
-                                    Remove
+                                    {t("Remove")}
                                 </button>)}
                             </li>
                         ))}
@@ -321,24 +323,24 @@ function MoodDetails({user}) {
 
                     {user &&(
                         <>
-                            <h4>Add song</h4>
+                            <h4>{t("Add song")}</h4>
 
                             {availableSongs.length === 0 ? (
-                                <p>No available songs</p>
+                                <p>{t("No available songs")}</p>
                             ) : (
                                 <>
                                     <select
                                         value={selectedSongToAdd}
                                         onChange={e => setSelectedSongToAdd(e.target.value)}
                                     >
-                                        <option value="">-- Select --</option>
+                                        <option value="">-- {t("Select")} --</option>
                                         {availableSongs.map(song => (
                                             <option key={song.ID} value={song.ID}>
                                                 {song.Name} – {song.Artist}
                                             </option>
                                         ))}
                                     </select>
-                                    <button onClick={addSongToMood}>Add</button>
+                                    <button onClick={addSongToMood}>{t("Add")}</button>
                                 </>
                             )}
                         </>
@@ -346,14 +348,14 @@ function MoodDetails({user}) {
 
                     {console.log(user)}
                     <br />
-                    <button onClick={() => navigate("/moods")}>Back</button>
+                    <button onClick={() => navigate("/moods")}>{t("Back")}</button>
                     {user && Number(user.God_Privilege) === 1 && (
-                        <button onClick={deleteMood}>Delete</button>
+                        <button onClick={deleteMood}>{t("Delete")}</button>
                     )}
 
 
                     {user && details.mood.Created_By === user.Name && (
-                        <button onClick={startEdit}>Edit</button>
+                        <button onClick={startEdit}>{t("Edit")}</button>
                     )}
 
                 </>
@@ -371,8 +373,8 @@ function MoodDetails({user}) {
                             setEditMood({ ...editMood, Description: e.target.value })
                         }
                     />
-                    <button onClick={saveEdit}>Save</button>
-                    <button onClick={cancelEdit}>Cancel</button>
+                    <button onClick={saveEdit}>{t("Save")}</button>
+                    <button onClick={cancelEdit}>{t("Cancel")}</button>
                 </>
             )}
         </>

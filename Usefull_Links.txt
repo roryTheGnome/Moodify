@@ -5,3 +5,5 @@ https://www.w3schools.com/tags/ref_httpmessages.asp
 https://www.npmjs.com/package/bcrypt
 
 https://www.w3schools.com/react/react_router.asp
+
+https://www.i18next.com/

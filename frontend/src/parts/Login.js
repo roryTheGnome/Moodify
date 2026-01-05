@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function Login({ onLogin }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+
+    const { t } = useTranslation();
 
     function handleLogin() {
         if (!username || !password) {
@@ -37,23 +40,23 @@ function Login({ onLogin }) {
 
     return (
         <div>
-            <h2>Login</h2>
+            <h2>{t("Login")}</h2>
 
             <input
-                placeholder="Username"
+                placeholder={t("Username")}
                 value={username}
                 onChange={e => setUsername(e.target.value)}
             />
 
             <input
                 type="password"
-                placeholder="Password"
+                placeholder={t("Password")}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
             />
 
             <br />
-            <button onClick={handleLogin}>Login</button>
+            <button onClick={handleLogin}>{t("Login")}</button>
         </div>
     );
 }

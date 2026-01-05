@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function Register({ onRegister }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+
+    const { t } = useTranslation();
 
     function handleRegister() {
         if (!username || !password) {
@@ -55,23 +58,23 @@ function Register({ onRegister }) {
 
     return (
         <div>
-            <h2>Register</h2>
+            <h2>{t("Register")}</h2>
 
             <input
-                placeholder="Username"
+                placeholder={t("Username")}
                 value={username}
                 onChange={e => setUsername(e.target.value)}
             />
 
             <input
                 type="password"
-                placeholder="Password"
+                placeholder={t("Password")}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
             />
 
             <br />
-            <button onClick={handleRegister}>Register</button>
+            <button onClick={handleRegister}>{t("Register")}</button>
         </div>
     );
 }

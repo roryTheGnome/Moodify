@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {MoodDetails} from "./Moods";
 
+import { useTranslation } from "react-i18next";
+
 function Songs({user}) {
     const [songs, setSongs] = useState([]);
     const [selectedSongId, setSelectedSongId] = useState(null);
@@ -17,6 +19,8 @@ function Songs({user}) {
     const [page, setPage] = useState(1);
     const limit = 15;
     const [total, setTotal] = useState(0);
+
+    const { t } = useTranslation();
 
 
     useEffect(() => {
@@ -85,10 +89,10 @@ function Songs({user}) {
             {/* ADD SONG */}
             {!selectedSongId && showAddForm && (
                 <>
-                    <h2 id="Title">Add Song</h2>
+                    <h2 id="Title">{t("Add Song")}</h2>
 
                     <input
-                        placeholder="Name"
+                        placeholder={t("Name")}
                         value={newSong.Name}
                         onChange={e =>
                             setNewSong({ ...newSong, Name: e.target.value })
@@ -96,7 +100,7 @@ function Songs({user}) {
                     />
 
                     <input
-                        placeholder="Artist"
+                        placeholder={t("Artist")}
                         value={newSong.Artist}
                         onChange={e =>
                             setNewSong({ ...newSong, Artist: e.target.value })
@@ -105,7 +109,7 @@ function Songs({user}) {
 
                     <input
                         type="number"
-                        placeholder="Duration in seconds"
+                        placeholder={t("Duration in seconds")}
                         value={newSong.Duration_in_Secs}
                         onChange={e =>
                             setNewSong({
@@ -128,8 +132,8 @@ function Songs({user}) {
 
                     <br />
 
-                    <button onClick={addSong}>Add</button>
-                    <button onClick={cancelAdd}>Cancel</button>
+                    <button onClick={addSong}>{t("Add")}</button>
+                    <button onClick={cancelAdd}>{t("Cancel")}</button>
                     <hr />
                 </>
             )}
@@ -137,16 +141,16 @@ function Songs({user}) {
             {/* SONG LIST */}
             {!selectedSongId && !showAddForm && (
                 <>
-                    <h2 id="Title">Songs</h2>
+                    <h2 id="Title">{t("Songs")}</h2>
 
                     <table>
                         <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Artist</th>
-                            <th>Duration</th>
-                            <th>Release Date</th>
+                            <th>{t("Name")}</th>
+                            <th>{t("Artist")}</th>
+                            <th>{t("Duration")}</th>
+                            <th>{t("Release Date")}</th>
                         </tr>
                         </thead>
 
@@ -173,12 +177,12 @@ function Songs({user}) {
 
                     <div style={{ marginTop: "10px" }}>
                         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-                            Prev</button>
+                            {t("Prev")}</button>
 
                         <span style={{ margin: "0 10px" }}>Page {page} of {Math.ceil(total / limit)}</span>
 
                         <button disabled={page >= Math.ceil(total / limit)} onClick={() => setPage(page + 1)}>
-                            Next</button>
+                            {t("Next")}</button>
                     </div>
 
                     <br />
@@ -204,6 +208,8 @@ function SongDetails({ songId, onBack, user }) {
 
     const navigate = useNavigate();
 
+    const { t } = useTranslation();
+
     useEffect(() => {
         setLoading(true);
         fetch(`http://localhost:3001/songs/${songId}`)
@@ -214,6 +220,10 @@ function SongDetails({ songId, onBack, user }) {
             });
     }, [songId]);
 
+
+    if (loading) {return <p>{t("Loading")}...</p>;}
+
+    if (!details || !details.song) {return <p>{t("Song not found")}</p>;}
 
     function startEdit() {
         setEditSong({ ...details.song });
@@ -258,24 +268,22 @@ function SongDetails({ songId, onBack, user }) {
             .catch(err => alert(err.message));
     }
 
-    if (loading) return <p>Loading...</p>;
-    if (!details) return <p>Song not found</p>;
 
     return (
         <>
-            <h2 id="Title">Song Details</h2>
+            <h2 id="Title">{t("Song Details")}</h2>
 
             {!isEditing ? (
                 <>
                     <p><strong>ID:</strong> {details.song.ID}</p>
-                    <p><strong>Name:</strong> {details.song.Name}</p>
-                    <p><strong>Artist:</strong> {details.song.Artist}</p>
-                    <p><strong>Duration:</strong> {details.song.Duration_in_Secs}</p>
-                    <p><strong>Release Date:</strong> {details.song.Release_Date}</p>
+                    <p><strong>{t("Name")}:</strong> {details.song.Name}</p>
+                    <p><strong>{t("Artist")}:</strong> {details.song.Artist}</p>
+                    <p><strong>{t("Duration")}:</strong> {details.song.Duration_in_Secs}</p>
+                    <p><strong>{t("Release Date")}:</strong> {details.song.Release_Date}</p>
 
-                    <h3>Moods this song is in</h3>
+                    <h3>{t("Moods this song is in")}</h3>
 
-                    {details.moods.length === 0 && <p>No moods yet</p>}
+                    {details.moods.length === 0 && <p>{t("No moods yet")}</p>}
 
                     <ul>
                         {details.moods.map(mood => (
@@ -288,12 +296,12 @@ function SongDetails({ songId, onBack, user }) {
                         ))}
                     </ul>
 
-                    <button onClick={onBack}>Back</button>
+                    <button onClick={onBack}>{t("Back")}</button>
 
                     {user && (
                         <>
-                            <button onClick={deleteSong}>Delete</button>
-                            <button onClick={startEdit}>Edit</button>
+                            <button onClick={deleteSong}>{t("Delete")}</button>
+                            <button onClick={startEdit}>{t("Edit")}</button>
                         </>
                     )}
 
@@ -334,8 +342,8 @@ function SongDetails({ songId, onBack, user }) {
                         }
                     />
 
-                    <button onClick={saveEdit}>Save</button>
-                    <button onClick={cancelEdit}>Cancel</button>
+                    <button onClick={saveEdit}>{t("Save")}</button>
+                    <button onClick={cancelEdit}>{t("Cancel")}</button>
 
                     <hr />
                 </>

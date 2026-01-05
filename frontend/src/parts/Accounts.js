@@ -1,7 +1,10 @@
 import {useEffect,useState} from "react";
+import { useTranslation } from "react-i18next";
 
 function Users() {
     const [users, setUsers] = useState([]);
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         fetch("http://localhost:3001/users")
@@ -17,12 +20,12 @@ function Users() {
 
     return (
         <section id="Accounts">
-            <h2 id="Title">Users</h2>
+            <h2 id="Title">{t("Users")}</h2>
 
             <table>
                 <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>{t("Name")}</th>
                 </tr>
                 </thead>
 

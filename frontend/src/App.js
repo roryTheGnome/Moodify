@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Routes, Route, Link, useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import Songs, { SongDetails } from "./parts/Songs";
 import Moods, { MoodDetails } from "./parts/Moods";
@@ -12,6 +13,8 @@ function App() {
 
     const navigate = useNavigate();
 
+    const { t } = useTranslation();
+
     const handleLogout = () => {
         setUser(null);
         navigate("/"); // go back to home for safety stuff
@@ -22,20 +25,20 @@ function App() {
             <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", background: "rgba(29,101,43,0.29)" }}>
 
                 <div>
-                    <Link to="/moods" style={{ marginRight: "10px" }}>Moods</Link>
-                    <Link to="/songs" style={{ marginRight: "10px" }}>Songs</Link>
-                    <Link to="/users">Users</Link>
+                    <Link to="/moods" style={{ marginRight: "10px" }}>{t("Moods")}</Link>
+                    <Link to="/songs" style={{ marginRight: "10px" }}>{t("Songs")}</Link>
+                    <Link to="/users">{t("Users")}</Link>
                 </div>
 
                 <div>
                     {!user ? (
                         <>
-                            <Link to="/login" style={{ marginRight: "10px" }}>Login</Link>
-                            <Link to="/register">Register</Link>
+                            <Link to="/login" style={{ marginRight: "10px" }}>{t("Login")}</Link>
+                            <Link to="/register">{t("Register")}</Link>
                         </>
                     ) : (
                         <>
-                            <span style={{ marginRight: "10px" }}>Welcome, {user.Name}!</span>
+                            <span style={{ marginRight: "10px" }}>{t("Welcome")}, {user.Name}!</span>
                             <button
                                 onClick={handleLogout}
                                 style={{
@@ -47,7 +50,7 @@ function App() {
                                     borderRadius: "4px"
                                 }}
                             >
-                                Logout
+                                {t("Logout")}
                             </button>
                         </>
                     )}
