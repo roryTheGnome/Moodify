@@ -7,6 +7,7 @@ import Moods, { MoodDetails } from "./parts/Moods";
 import Users from "./parts/Accounts";
 import Register from "./parts/Register";
 import Login from "./parts/Login";
+import LanguageSwitcher2000 from "./parts/Switch";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -31,6 +32,7 @@ function App() {
                 </div>
 
                 <div>
+                    <LanguageSwitcher2000 />
                     {!user ? (
                         <>
                             <Link to="/login" style={{ marginRight: "10px" }}>{t("Login")}</Link>
