@@ -2,7 +2,7 @@ import { SongDetails } from "./Songs";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-function Moods() {
+function Moods({user}) {
     const [moods, setMoods] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
     const [newMood, setNewMood] = useState({ Name: "", Description: "" });
@@ -21,10 +21,19 @@ function Moods() {
     }
 
     function addMood() {
+        if (!user) {
+            alert("You must log in to add a mood");
+            return;
+        }
         fetch("http://localhost:3001/moods/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newMood)
+            body: JSON.stringify({
+                Name: newMood.Name,
+                Description: newMood.Description,
+                Created_By: user.ID
+            })
+
         })
             .then(res => {
                 if (!res.ok) {
@@ -107,7 +116,10 @@ function Moods() {
                         </tbody>
                     </table>
 
-                    <button onClick={() => setShowAddForm(true)}>Add Mood</button>
+                    {user&& (
+                        <button onClick={() => setShowAddForm(true)}>Add Mood</button>
+                    )}
+
                     <hr />
                 </>
             )}
@@ -115,7 +127,7 @@ function Moods() {
     );
 }
 
-function MoodDetails() {
+function MoodDetails({user}) {
     const { id } = useParams();
     const navigate = useNavigate();
     const moodId = Number(id);
@@ -258,6 +270,10 @@ function MoodDetails() {
             .catch(err => alert(err.message));
     }
 
+    console.log("USER:", user);
+    console.log("CREATED BY:", details.mood.Created_By);
+
+
     return (
         <>
             <h2 id="Title">Mood Details</h2>
@@ -280,39 +296,51 @@ function MoodDetails() {
                                     {song.Name}
                                 </button>
                                 {" "}({song.Artist})
-                                {" "}
-                                <button onClick={() => removeSongFromMood(song.ID)}>
+                                {" "}{user && details.mood.Created_By === user.Name &&
+                                (<button onClick={() => removeSongFromMood(song.ID)}>
                                     Remove
-                                </button>
+                                </button>)}
                             </li>
                         ))}
                     </ul>
 
-                    <h4>Add song</h4>
-
-                    {availableSongs.length === 0 ? (
-                        <p>No available songs</p>
-                    ) : (
+                    {user &&(
                         <>
-                            <select
-                                value={selectedSongToAdd}
-                                onChange={e => setSelectedSongToAdd(e.target.value)}
-                            >
-                                <option value="">-- Select --</option>
-                                {availableSongs.map(song => (
-                                    <option key={song.ID} value={song.ID}>
-                                        {song.Name} – {song.Artist}
-                                    </option>
-                                ))}
-                            </select>
-                            <button onClick={addSongToMood}>Add</button>
+                            <h4>Add song</h4>
+
+                            {availableSongs.length === 0 ? (
+                                <p>No available songs</p>
+                            ) : (
+                                <>
+                                    <select
+                                        value={selectedSongToAdd}
+                                        onChange={e => setSelectedSongToAdd(e.target.value)}
+                                    >
+                                        <option value="">-- Select --</option>
+                                        {availableSongs.map(song => (
+                                            <option key={song.ID} value={song.ID}>
+                                                {song.Name} – {song.Artist}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button onClick={addSongToMood}>Add</button>
+                                </>
+                            )}
                         </>
                     )}
 
+                    {console.log(user)}
                     <br />
                     <button onClick={() => navigate("/moods")}>Back</button>
-                    <button onClick={deleteMood}>Delete</button>
-                    <button onClick={startEdit}>Edit</button>
+                    {user && Number(user.God_Privilege) === 1 && (
+                        <button onClick={deleteMood}>Delete</button>
+                    )}
+
+
+                    {user && details.mood.Created_By === user.Name && (
+                        <button onClick={startEdit}>Edit</button>
+                    )}
+
                 </>
             ) : (
                 <>

@@ -179,7 +179,7 @@ app.get("/moods/:id", (req,res) =>{
 });
 
 app.post("/moods/add",(req,res)=>{
-    const {Name,Description}=req.body;
+    const {Name,Description,Created_By}=req.body;
 
     if(!Name || !Description){
         return res.status(400).json({ error: "All fields are required" });
@@ -194,9 +194,9 @@ app.post("/moods/add",(req,res)=>{
             return res.status(409).json({error: "Mood already exists"});
         }
 
-        const insert=`INSERT INTO Mood (Name, Description, Created_By) VALUES (?,?,2)`;
+        const insert=`INSERT INTO Mood (Name, Description, Created_By) VALUES (?,?,?)`;
 
-        db.run(insert,[Name,Description],function(err){
+        db.run(insert,[Name,Description,Created_By],function(err){
             if(err){return res.status(500).json(err);}
 
             res.json({
@@ -337,7 +337,7 @@ app.delete("/moods/:moodID/songs/:songID/delete",(req,res)=>{
 
 //Account---------------------------------------------------------------------------------------------------------------
 app.get("/users", (req,res)=>{
-    db.all('SELECT Name FROM Account',[],(err,rows)=>res.json(rows));
+    db.all('SELECT Name,god_privilege FROM Account',[],(err,rows)=>res.json(rows));
 });
 
 app.post("/account/register",async (req,res)=>{

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {MoodDetails} from "./Moods";
 
-function Songs() {
+function Songs({user}) {
     const [songs, setSongs] = useState([]);
     const [selectedSongId, setSelectedSongId] = useState(null);
 
@@ -69,7 +69,8 @@ function Songs() {
 
             {/* SONG DETAILS */}
             {selectedSongId && (
-                <SongDetails songId={selectedSongId}  onBack={() => setSelectedSongId(null)}/>
+                <SongDetails songId={selectedSongId}  onBack={() => setSelectedSongId(null)}
+                user={user}/>
             )}
 
             {/* ADD SONG */}
@@ -162,9 +163,11 @@ function Songs() {
                     </table>
 
                     <br />
-                    <button onClick={() => setShowAddForm(true)}>
-                        Add Song
-                    </button>
+
+                    {user&& (
+                    <button onClick={() => setShowAddForm(true)}>Add Song</button>
+                    )}
+
                     <hr />
                 </>
             )}
@@ -173,7 +176,7 @@ function Songs() {
     );
 }
 
-function SongDetails({ songId, onBack }) {
+function SongDetails({ songId, onBack, user }) {
     const [details, setDetails] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -267,8 +270,14 @@ function SongDetails({ songId, onBack }) {
                     </ul>
 
                     <button onClick={onBack}>Back</button>
-                    <button onClick={deleteSong}>Delete</button>
-                    <button onClick={startEdit}>Edit</button>
+
+                    {user && (
+                        <>
+                            <button onClick={deleteSong}>Delete</button>
+                            <button onClick={startEdit}>Edit</button>
+                        </>
+                    )}
+
                     <hr />
                 </>
             ) : (

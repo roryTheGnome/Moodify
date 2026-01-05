@@ -19,7 +19,7 @@ function App() {
 
     return (
         <>
-            <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", background: "#f5f5f5" }}>
+            <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", background: "rgba(29,101,43,0.29)" }}>
 
                 <div>
                     <Link to="/moods" style={{ marginRight: "10px" }}>Moods</Link>
@@ -35,7 +35,7 @@ function App() {
                         </>
                     ) : (
                         <>
-                            <span style={{ marginRight: "10px" }}>Welcome, {user.username}!</span>
+                            <span style={{ marginRight: "10px" }}>Welcome, {user.Name}!</span>
                             <button
                                 onClick={handleLogout}
                                 style={{
@@ -58,10 +58,10 @@ function App() {
             <Routes>
                 <Route path="/" element={<h2>MOODIFY</h2>} />
 
-                <Route path="/songs" element={<Songs />} />
-                <Route path="/songs/:id" element={<SongDetailsWrapper />} />
-                <Route path="/moods" element={<Moods />} />
-                <Route path="/moods/:id" element={<MoodDetails />} />
+                <Route path="/songs" element={<Songs user={user}/>} />
+                <Route path="/songs/:id" element={<SongDetailsWrapper user={user} />} />
+                <Route path="/moods" element={<Moods user={user} />} />
+                <Route path="/moods/:id" element={<MoodDetails user={user} />} />
 
                 <Route path="/users" element={<Users />} />
                 <Route path="/login" element={<Login onLogin={setUser} />} />
@@ -71,10 +71,10 @@ function App() {
     );
 }
 
-function SongDetailsWrapper() {
+function SongDetailsWrapper({ user }) {
     const { id } = useParams();
     const navigate = useNavigate();
-    return <SongDetails songId={Number(id)} onBack={() => navigate("/songs")} />;
+    return <SongDetails songId={Number(id)} onBack={() => navigate("/songs")} user={user} />;
 }
 
 export default App;
