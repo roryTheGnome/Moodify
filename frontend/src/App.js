@@ -1,3 +1,5 @@
+import "./App.css";
+
 import { useState } from "react";
 import { Routes, Route, Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -8,6 +10,8 @@ import Users from "./parts/Accounts";
 import Register from "./parts/Register";
 import Login from "./parts/Login";
 import LanguageSwitcher2000 from "./parts/Switch";
+import Home from "./parts/Home";
+import Footer from "./parts/Footer";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -22,10 +26,11 @@ function App() {
     };
 
     return (
-        <>
+        <div className="app-layout">
             <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", background: "rgba(29,101,43,0.29)" }}>
 
                 <div>
+                    <Link to="/" style={{ marginRight: "10px" }}>{t("Home")}</Link>
                     <Link to="/moods" style={{ marginRight: "10px" }}>{t("Moods")}</Link>
                     <Link to="/songs" style={{ marginRight: "10px" }}>{t("Songs")}</Link>
                     <Link to="/users">{t("Users")}</Link>
@@ -60,8 +65,10 @@ function App() {
 
             </nav>
 
+
+            <main className="main-content">
             <Routes>
-                <Route path="/" element={<h2>MOODIFY</h2>} />
+                <Route path="/" element={<Home />} />
 
                 <Route path="/songs" element={<Songs user={user}/>} />
                 <Route path="/songs/:id" element={<SongDetailsWrapper user={user} />} />
@@ -71,8 +78,12 @@ function App() {
                 <Route path="/users" element={<Users />} />
                 <Route path="/login" element={<Login onLogin={setUser} />} />
                 <Route path="/register" element={<Register onRegister={setUser} />} />
+
             </Routes>
-        </>
+            </main>
+
+            <Footer />
+        </div>
     );
 }
 

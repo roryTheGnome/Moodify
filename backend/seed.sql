@@ -1,6 +1,6 @@
 --idk if seed is the correct name for this file but i got inspired by minecraft n it sounds correct
 --this is the sample data
-
+--we can not log in as Gnome or admin since their passwords are no longer valid due to cryp. but they are stil in the system
 INSERT INTO Account (name, password, god_privilege)
 VALUES
     ('Gnome', 'pjatk', 0),

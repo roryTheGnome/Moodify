@@ -28,7 +28,7 @@ const resources = {
             "No available songs": "No available songs",
             "Select": "Select",
             "Save": "Save",
-            "Cancel": "Stornieren",
+            "Cancel": "Cancel",
             "Artist": "Artist",
             "Duration in seconds": "Duration in seconds",
             "Song": "Song",
@@ -42,6 +42,12 @@ const resources = {
             "Password": "Laden",
             "Register": "Register",
             "Welcome": "Welcome",
+            "Home": "Home",
+            "Welcome to": "Welcome to",
+            "Moodify is a single-page application that lets you create playlists based on your mood and collaborate with other users.": "Moodify is a single-page application that lets you create playlists based on your mood and collaborate with other users.",
+            "You can group songs into moods, and the same song can appear in multiple moods, because music rarely fits just one feeling.": "You can group songs into moods, and the same song can appear in multiple moods — because music rarely fits just one feeling.",
+            "Depending on your role (visitor, user, or admin), you’ll have different ways to explore, manage, and contribute to the platform.": "Depending on your role (visitor, user, or admin), you’ll have different ways to explore, manage, and contribute to the platform.",
+            "Explore your mood!": "Explore your mood!",
         }
     },
     de: {
@@ -82,6 +88,12 @@ const resources = {
             "Password": "Passwort",
             "Register": "Registrieren",
             "Welcome": "Willkommen",
+            "Home": "Startseite",
+            "Welcome to": "Willkommen bei",
+            "Moodify is a single-page application that lets you create playlists based on your mood and collaborate with other users.": "Moodify ist eine einseitige Anwendung, mit der Sie Wiedergabelisten basierend auf Ihrer Stimmung erstellen und mit anderen Benutzern zusammenarbeiten können.",
+            "You can group songs into moods, and the same song can appear in multiple moods, because music rarely fits just one feeling.": "Man kann Lieder nach Stimmungen gruppieren, und dasselbe Lied kann in mehreren Stimmungen vorkommen, denn Musik passt selten nur zu einem einzigen Gefühl.",
+            "Depending on your role (visitor, user, or admin), you’ll have different ways to explore, manage, and contribute to the platform.": "Je nach Ihrer Rolle (Besucher, Benutzer oder Administrator) stehen Ihnen unterschiedliche Möglichkeiten zur Verfügung, die Plattform zu erkunden, zu verwalten und zu ihr beizutragen.",
+            "Explore your mood!": "Erforsche deine Stimmung!",
         }
     }
 };
@@ -97,4 +109,3 @@ i18n
         }
     });
 
-export default i18n;
